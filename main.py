@@ -31,6 +31,15 @@ import os
 from process_passport import process_image_to_passport
 from zipfile import ZipFile
 import math
+import logging
+
+# Setup logger
+logging.basicConfig(
+    filename="passport_batch.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 input_dir = "input_images"
 output_dir = "passport_photos"
@@ -46,7 +55,9 @@ all_files = [
 ]
 
 print("=== STARTING BATCH PASSPORT IMAGE PROCESSING ===")
+logger.info("Starting batch passport image processing")
 print(f"Total files: {len(all_files)}")
+logger.info(f"Total files: {len(all_files)}")
 
 # Process in batches
 total_batches = math.ceil(len(all_files) / batch_size)
@@ -56,19 +67,28 @@ for i in range(total_batches):
     end = min(start + batch_size, len(all_files))
     batch_files = all_files[start:end]
     print(f"\n📦 Batch {i+1}/{total_batches} (files {start+1} to {end})")
+    logger.info(f"Batch {i+1}/{total_batches} (files {start+1} to {end})")
 
     for filename in batch_files:
         input_path = os.path.join(input_dir, filename)
         base_name = os.path.splitext(filename)[0]
         output_path = os.path.join(output_dir, base_name + ".jpg")
 
-        success = process_image_to_passport(input_path, output_path)
-        if success:
-            print(f"✅ Done: {filename}")
-        else:
-            print(f"❌ Failed: {filename}")
+        try:
+            success = process_image_to_passport(input_path, output_path)
+            if success:
+                print(f"✅ Done: {filename}")
+                logger.info(f"Done: {filename}")
+            else:
+                print(f"❌ Failed: {filename}")
+                logger.error(f"Failed: {filename}")
+        except Exception as e:
+            print(f"❌ Exception for {filename}: {e}")
+            logger.exception(f"Exception for {filename}")
 
 print("\n📁 All batches processed. Creating ZIP...")
+logger.info("All batches processed. Creating ZIP...")
+
 
 # Zip all results
 with ZipFile(output_zip, "w") as zipf:
@@ -77,4 +97,6 @@ with ZipFile(output_zip, "w") as zipf:
         zipf.write(file_path, arcname=filename)
 
 print(f"✅ Final ZIP created: {output_zip}")
+logger.info(f"Final ZIP created: {output_zip}")
 print("=== FINISHED ===")
+logger.info("FINISHED")
