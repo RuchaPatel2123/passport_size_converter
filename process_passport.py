@@ -171,9 +171,9 @@ face_detection = mp_face_detection.FaceDetection(model_selection=1, min_detectio
 selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
 
 
-def compress_to_target_size(pil_img, max_kb=20, min_quality=40):
+def compress_to_target_size(pil_img, max_kb=20, min_quality=30):
     buffer = io.BytesIO()
-    quality = 95
+    quality = 80
     step = 5
     while quality >= min_quality:
         buffer.seek(0)
