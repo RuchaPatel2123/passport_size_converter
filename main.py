@@ -1,4 +1,3 @@
-
 import os
 from process_passport import process_image_to_passport
 
@@ -8,13 +7,16 @@ os.makedirs(output_dir, exist_ok=True)
 
 print("=== STARTING PASSPORT IMAGE PROCESSING ===")
 files = os.listdir(input_dir)
-print(f"Files found in input folder: {files}")
 
 for filename in files:
     print(f"➡️ Checking: {filename}")
     if filename.lower().endswith((".jpg", ".jpeg", ".png")):
         input_path = os.path.join(input_dir, filename)
-        output_path = os.path.join(output_dir, os.path.splitext(filename)[0] + ".png")
+
+        # Keep original filename, change extension to .jpg
+        base_name = os.path.splitext(filename)[0]
+        output_path = os.path.join(output_dir, f"{base_name}.jpg")
+
         success = process_image_to_passport(input_path, output_path)
         if success:
             print(f"✅ Done: {output_path}")
