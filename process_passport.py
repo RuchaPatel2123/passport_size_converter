@@ -172,18 +172,36 @@ selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=
 
 
 def compress_to_target_size(pil_img, max_kb=20, min_quality=30):
-    buffer = io.BytesIO()
-    quality = 80
+    max_bytes = max_kb * 1024
+    quality = 95
     step = 5
-    while quality >= min_quality:
-        buffer.seek(0)
-        buffer.truncate()
-        pil_img.save(buffer, format="JPEG", quality=quality)
-        size_kb = len(buffer.getvalue()) / 1024
-        if size_kb <= max_kb:
+    min_quality = 10
+    min_size = 300  # don't go below 300x300
+
+    img = pil_img.copy()
+    
+    while True:
+        buffer = io.BytesIO()
+        q = quality
+        while q >= min_quality:
+            buffer.seek(0)
+            buffer.truncate()
+            img.save(buffer, format="JPEG", quality=q)
+            if buffer.tell() <= max_bytes:
+                return buffer.getvalue()
+            q -= step
+
+        # If compression fails at all qualities, reduce image size
+        new_w = int(img.width * 0.9)
+        new_h = int(img.height * 0.9)
+        if new_w < min_size or new_h < min_size:
+            # Can't shrink further; return best effort
+            buffer.seek(0)
+            buffer.truncate()
+            img.save(buffer, format="JPEG", quality=min_quality)
             return buffer.getvalue()
-        quality -= step
-    return buffer.getvalue()
+        
+        img = img.resize((new_w, new_h), Image.ANTIALIAS)
 
 
 def process_image_to_passport(input_path, output_path, max_size_kb=20):
