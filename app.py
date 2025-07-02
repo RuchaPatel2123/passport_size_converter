@@ -19,7 +19,7 @@ st.title("🪪 Bulk Passport Photo Generator")
 st.markdown("Upload one or more images. The app will:")
 st.markdown("- Detect the face")
 st.markdown("- Expand to include face, hair & shoulders")
-st.markdown("- Apply circular crop with white background")
+st.markdown("- Apply white background")
 st.markdown("- Resize to 600x600 px")
 st.markdown("- Compress and save as `.jpg` (≤ 20 KB each)")
 
