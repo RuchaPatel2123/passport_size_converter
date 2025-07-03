@@ -203,7 +203,8 @@ def compress_to_target_size(pil_img, max_kb=20, min_quality=30):
             img.save(buffer, format="JPEG", quality=min_quality)
             return buffer.getvalue()
         
-        img = img.resize((new_w, new_h), Image.ANTIALIAS)
+        # img = img.resize((new_w, new_h), Image.ANTIALIAS)
+        img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
 
 def process_image_to_passport(input_path, output_path, max_size_kb=20):
@@ -238,9 +239,9 @@ def process_image_to_passport(input_path, output_path, max_size_kb=20):
                     # Expand bounding box
                     box_width = x2 - x1
                     box_height = y2 - y1
-                    expand_top = int(box_height * 0.6)
-                    expand_bottom = int(box_height * 1.4)
-                    expand_side = int(box_width * 0.5)
+                    expand_top = int(box_height * 1.0)
+                    expand_bottom = int(box_height * 2.0)
+                    expand_side = int(box_width * 1.0)
 
                     new_x1 = max(0, x1 - expand_side)
                     new_y1 = max(0, y1 - expand_top)
